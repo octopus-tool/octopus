@@ -16,7 +16,7 @@ public abstract class AbstractDatasourceService {
      * @param datasourceInfo 数据源连接信息
      * @return 是否可用
      */
-    public abstract AvaliableResp avaliable(Map<String, Object> datasourceInfo);
+    public abstract AvailableResp avaliable(Map<String, Object> datasourceInfo) throws Exception;
 
     /**
      * 数据源接口调用
@@ -27,4 +27,15 @@ public abstract class AbstractDatasourceService {
      * @return
      */
     public abstract Object invoke(Map<String, Object> datasourceInfo, Map<String, Object> interfaceInfo, Map<String, Object> params);
+
+    /**
+     * 格式化模版
+     *
+     * @param template 模版
+     * @param params   变量
+     * @return
+     */
+    public String formatByGroovy(String template, Map<String, Object> params) {
+        return null;
+    }
 }
