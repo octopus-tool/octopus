@@ -13,10 +13,32 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
+
+        <dependency>
+            <groupId>org.gaius.octopus</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <artifactId>groovy</artifactId>
+            <groupId>org.apache.groovy</groupId>
+        </dependency>
+
+        <dependency>
+            <artifactId>groovy-templates</artifactId>
+            <groupId>org.apache.groovy</groupId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
 
