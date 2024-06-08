@@ -2,6 +2,8 @@ package org.gaius.octopus.core.execute;
 
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * 执行器上下文
  *
@@ -10,10 +12,14 @@ import lombok.Data;
  */
 @Data
 public class ExecuteContext<T> {
-
+    
     /**
-     * 节点数据内容
+     * 数据内容
      */
     private T content;
-
+    
+    /**
+     * 参数
+     */
+    private Map<String, Object> args;
 }

@@ -16,13 +16,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AvailableResp {
-
+public class Available {
+    
     /**
      * 是否可用；true：可用；false：不可用
      */
     private Boolean available;
-
+    
     /**
      * 信息；可用时看返回数据源信息；不可用时看返回错误信息
      */

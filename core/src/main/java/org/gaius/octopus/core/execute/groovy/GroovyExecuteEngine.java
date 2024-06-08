@@ -11,6 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
+import org.gaius.datasource.Available;
+import org.gaius.datasource.exception.DatabaseException;
 import org.gaius.octopus.core.execute.AbstractExecuteEngine;
 import org.gaius.octopus.core.execute.ExecuteContext;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,6 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.DriverManager;
 import java.util.Map;
 import java.util.Properties;
 
@@ -31,13 +32,19 @@ import java.util.Properties;
 @Service
 @Slf4j
 public class GroovyExecuteEngine extends AbstractExecuteEngine<String> {
-
+    
     private static CompilerConfiguration compilerConfiguration;
-
+    
     static {
         initCompilerConfiguration();
     }
-
+    
+    @Override
+    public Available validate(ExecuteContext<String> content) throws DatabaseException {
+        
+        return null;
+    }
+    
     @Override
     public Object invoke(ExecuteContext<String> context) {
         String scriptText = context.getContent();
@@ -60,7 +67,12 @@ public class GroovyExecuteEngine extends AbstractExecuteEngine<String> {
             throw new IllegalArgumentException("脚本执行异常", e);
         }
     }
-
+    
+    @Override
+    public void destroy(ExecuteContext<String> context) {
+        // do nothing
+    }
+    
     /**
      * 初始化groovy配置参数
      *
@@ -72,7 +84,8 @@ public class GroovyExecuteEngine extends AbstractExecuteEngine<String> {
         // 脚本配置
         Properties properties = new Properties();
         try {
-            InputStream stream = ResourceUtils.getURL(ResourceUtils.CLASSPATH_URL_PREFIX + "groovy.properties").openStream();
+            InputStream stream = ResourceUtils.getURL(ResourceUtils.CLASSPATH_URL_PREFIX + "groovy.properties")
+                    .openStream();
             properties.load(stream);
         } catch (IOException e) {
             log.error("读取groovy.properties配置发生异常", e);
@@ -94,14 +107,14 @@ public class GroovyExecuteEngine extends AbstractExecuteEngine<String> {
         config.addCompilationCustomizers(customizer);
         compilerConfiguration = config;
     }
-
+    
     /**
      * 构建参数
      *
      * @param context 上下文
      * @return
      */
-    private Binding wrapperGlobalVariables(ExecuteContext context) {
+    private Binding wrapperGlobalVariables(ExecuteContext<String> context) {
         // 定义脚本局部变量
         Map<String, Object> param = Maps.newHashMapWithExpectedSize(8);
         return new Binding(param);

@@ -1,4 +1,4 @@
-package org.gaius.datasource;
+package org.gaius.datasource.plugin;
 
 /**
  * 数据源插件接口
@@ -7,14 +7,14 @@ package org.gaius.datasource;
  * @date 2024/6/7
  */
 public interface DatasourcePlugin {
-
+    
     /**
      * 获取插件名称
      *
      * @return 插件名称
      */
     String getName();
-
+    
     /**
      * 加载插件
      *

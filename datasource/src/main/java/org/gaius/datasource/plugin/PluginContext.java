@@ -1,4 +1,4 @@
-package org.gaius.datasource;
+package org.gaius.datasource.plugin;
 
 import lombok.Data;
 
@@ -10,7 +10,7 @@ import lombok.Data;
  */
 @Data
 public class PluginContext {
-
+    
     /**
      * 插件服务
      */

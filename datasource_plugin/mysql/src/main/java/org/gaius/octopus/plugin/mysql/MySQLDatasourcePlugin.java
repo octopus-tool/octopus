@@ -1,8 +1,8 @@
 package org.gaius.octopus.plugin.mysql;
 
 import com.google.auto.service.AutoService;
-import org.gaius.datasource.DatasourcePlugin;
-import org.gaius.datasource.PluginContext;
+import org.gaius.datasource.plugin.DatasourcePlugin;
+import org.gaius.datasource.plugin.PluginContext;
 
 /**
  * 数据源插件
@@ -12,14 +12,15 @@ import org.gaius.datasource.PluginContext;
  */
 @AutoService(DatasourcePlugin.class)
 public class MySQLDatasourcePlugin implements DatasourcePlugin {
+    
     @Override
     public String getName() {
         return "mysqlPlugin";
     }
-
+    
     @Override
     public void load(PluginContext context) {
         // 注册当前插件
-        context.getPluginService().register(new MySQLDatasourceFactory());
+        context.getPluginService().register(getName(), new MySQLDatasourceFactory());
     }
 }

@@ -13,14 +13,15 @@ import java.util.Map;
  */
 @Slf4j
 public class TemplateUtil {
+    
     // 模版引擎
     private static final GStringTemplateEngine TEMPLATE_ENGINE;
-
+    
     static {
         TEMPLATE_ENGINE = new GStringTemplateEngine();
     }
-
-
+    
+    
     /**
      * 格式化模版
      *

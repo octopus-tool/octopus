@@ -5,18 +5,30 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
-import org.gaius.datasource.AvailableResp;
+import org.gaius.datasource.Available;
 import org.gaius.datasource.DatasourceInstance;
 import org.gaius.datasource.InvokeContext;
 import org.gaius.datasource.ServiceContext;
 import org.gaius.datasource.exception.DatabaseException;
-import org.gaius.datasource.model.DatasourceConfig;
+import org.gaius.datasource.model.DatasourceProperties;
 import org.gaius.datasource.utils.TemplateUtil;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * mysql数据源
@@ -26,43 +38,50 @@ import java.util.*;
  */
 @Slf4j
 public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
+    
     /**
      * 数据源配置
      */
-    private final DatasourceConfig datasourceConfig;
+    private final DatasourceProperties properties;
+    
     /**
      * 数据源
      */
     private final DataSource dataSource;
+    
     /**
      * 测试连接成功
      */
     private static final String SUCCESS_TEMPLATE = "%s %s 连接成功";
-
-    public MySQLDatasourceInstance(DatasourceConfig config) {
-        this.datasourceConfig = config;
-        this.dataSource = initDatasource(config);
+    
+    public MySQLDatasourceInstance(DatasourceProperties properties) {
+        this.properties = properties;
+        this.dataSource = initDatasource(properties);
     }
-
+    
     /**
      * 初始化数据库连接
      *
      * @param config 配置
      * @return
      */
-    private DataSource initDatasource(DatasourceConfig config) {
+    private DataSource initDatasource(DatasourceProperties config) {
         Map<String, Object> content = config.getContent();
         Boolean pool = MapUtils.getBoolean(content, "pool", false);
         // 若当前数据源实例开启连接池，则使用HikariCP连接池
         if (pool) {
+            log.info(
+                    "The current data source instance is enabled to connect to the connection pool; tenantId:{} datasourceId:{} datasourceName:{}",
+                    config.getTenantId(), config.getDatasourceId(), config.getDatasourceName());
             return createDataSource(content);
         }
-        log.info("当前数据源实例未开启连接池 tenantId:{} datasourceId:{} datasourceName:{}",
+        log.info(
+                "Connection pool is not enabled for the current data source instance; tenantId:{} datasourceId:{} datasourceName:{}",
                 config.getTenantId(), config.getDatasourceId(), config.getDatasourceName());
         return null;
     }
-
-
+    
+    
     /**
      * 获取数据源
      *
@@ -83,7 +102,8 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
         config.setUsername(user);
         config.setPassword(password);
         config.setConnectionTestQuery("select 1");
-        Map<String, Object> advanced = (Map<String, Object>) MapUtils.getMap(datasource, "advanced", Collections.emptyMap());
+        Map<String, Object> advanced = (Map<String, Object>) MapUtils.getMap(datasource, "advanced",
+                Collections.emptyMap());
         // 连接超时时间,默认10秒
         Long connectionTimeout = MapUtils.getLong(advanced, "connectionTimeout", 10000L);
         config.setConnectionTimeout(connectionTimeout);
@@ -105,31 +125,31 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
         log.info("初始化mysql数据源, url:{}, user:{}, password:******, advanced:{}", url, user, advanced);
         return new HikariDataSource(config);
     }
-
+    
     @Override
-    public AvailableResp avaliable(ServiceContext context) {
+    public Available available(ServiceContext context) {
         try (Connection connection = createConnection(context)) {
             // 创建数据库连接
             if (connection != null) {
                 DatabaseMetaData metaData = connection.getMetaData();
                 String databaseType = metaData.getDatabaseProductName();
                 String productVersion = metaData.getDatabaseProductVersion();
-                log.info("mysql数据库连接成功, 数据库类型:{}, 数据库版本:{}", databaseType, productVersion);
-                return new AvailableResp(true, SUCCESS_TEMPLATE.formatted(databaseType, productVersion));
+                log.info("The mysql database has been successfully connected, database version:{}", productVersion);
+                return new Available(true, SUCCESS_TEMPLATE.formatted(databaseType, productVersion));
             }
-            return new AvailableResp(false, "mysql数据库连接失败");
+            return new Available(false, "mysql数据库连接失败");
         } catch (ClassNotFoundException e) {
             log.error("mysql驱动加载失败", e);
-            return new AvailableResp(false, "mysql驱动加载失败");
+            return new Available(false, "mysql驱动加载失败");
         } catch (SQLException sqlException) {
             log.error("mysql数据库连接失败", sqlException);
-            return new AvailableResp(false, "mysql数据库连接失败；" + sqlException.getMessage());
+            return new Available(false, "mysql数据库连接失败；" + sqlException.getMessage());
         } catch (Exception unknown) {
             log.error("连接数据库时发生未知异常", unknown);
-            return new AvailableResp(false, "连接数据库时发生未知异常");
+            return new Available(false, "连接数据库时发生未知异常");
         }
     }
-
+    
     /**
      * 创建数据库连接
      *
@@ -139,7 +159,7 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
      * @throws SQLException           数据库连接失败
      */
     private Connection createConnection(ServiceContext serviceContext) throws ClassNotFoundException, SQLException {
-        Map<String, Object> datasourceInfo = datasourceConfig.getContent();
+        Map<String, Object> datasourceInfo = properties.getContent();
         // 获取url格式
         String urlFormat = MapUtils.getString(datasourceInfo, "urlFormat");
         // 获取数据库驱动
@@ -152,7 +172,7 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
         Class.forName(driverClass);
         return DriverManager.getConnection(url, user, encrypt);
     }
-
+    
     @Override
     public Object invoke(InvokeContext context) throws DatabaseException {
         Map<String, Object> interfaceInfo = context.getInterfaceInfo();
@@ -196,7 +216,7 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
             throw new DatabaseException(e);
         }
     }
-
+    
     /**
      * 转换数据库字段值
      * <p>主要处理日期类型字段
@@ -223,7 +243,7 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
         }
         return resultSet.getObject(columnIndex);
     }
-
+    
     /**
      * 获取数据库连接
      *
@@ -238,7 +258,7 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
         }
         return createConnection(serviceContext);
     }
-
+    
     @Override
     public void destroy() {
         // 如当前数据源实例使用了连接池，需要关闭连接池
