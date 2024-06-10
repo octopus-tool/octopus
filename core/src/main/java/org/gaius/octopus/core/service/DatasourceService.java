@@ -1,7 +1,9 @@
 package org.gaius.octopus.core.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import org.gaius.datasource.Available;
 import org.gaius.octopus.core.pojo.dto.DatasourceDTO;
+import org.gaius.octopus.core.pojo.entity.Datasource;
 
 /**
  * @author zhaobo
@@ -9,7 +11,7 @@ import org.gaius.octopus.core.pojo.dto.DatasourceDTO;
  * @description 数据源接口
  * @date 2024/6/7
  */
-public interface DatasourceService {
+public interface DatasourceService extends IService<Datasource> {
     
     /**
      * 数据源测试
@@ -18,4 +20,6 @@ public interface DatasourceService {
      * @return
      */
     Available test(DatasourceDTO dto) throws Exception;
+    
+    DatasourceDTO selectById(Integer datasourceId);
 }

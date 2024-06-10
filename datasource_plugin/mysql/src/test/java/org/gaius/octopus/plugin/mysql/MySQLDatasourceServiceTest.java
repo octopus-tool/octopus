@@ -27,8 +27,8 @@ class MySQLDatasourceServiceTest {
     @Test
     void available_success_when_datasource_info_is_valid_then_return_available() {
         // 建构测试数据
-        Map<String, Object> datasourceInfo = Map.of("host", "10.2.2.153", "port", 18103, "user", "Rootmaster",
-                "password", "Rootmaster@777", "database", "cw_doau", "driverClass", "com.mysql.cj.jdbc.Driver",
+        Map<String, Object> datasourceInfo = Map.of("host", "10.2.2.153", "port", 18103, "user", "xxx",
+                "password", "xxx@777", "database", "cw_doau", "driverClass", "com.mysql.cj.jdbc.Driver",
                 "urlFormat",
                 "jdbc:mysql://${host}:${port}/${database}?serverTimezone=UTC&characterEncoding=utf-8&allowPublicKeyRetrieval=true");
         DatasourceProperties datasourceProperties = new DatasourceProperties();
@@ -49,8 +49,8 @@ class MySQLDatasourceServiceTest {
     @Test
     void available_when_network_unavailable_then_return_unavailable() {
         // 构建测试数据
-        Map<String, Object> datasourceInfo = Map.of("host", "10.2.2.153", "port", 18103, "user", "Rootmaster",
-                "password", "Rootmaster@777", "database", "cw_doau", "driverClass", "com.mysql.cj.jdbc.Driver",
+        Map<String, Object> datasourceInfo = Map.of("host", "10.2.2.153", "port", 18103, "user", "xxx",
+                "password", "xxx@777", "database", "cw_doau", "driverClass", "com.mysql.cj.jdbc.Driver",
                 "urlFormat",
                 "jdbc:mysql://${host}:${port}/${database}?serverTimezone=UTC&characterEncoding=utf-8&allowPublicKeyRetrieval=true");
         DatasourceProperties datasourceProperties = new DatasourceProperties();

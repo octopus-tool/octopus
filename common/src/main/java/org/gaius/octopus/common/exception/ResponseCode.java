@@ -12,6 +12,8 @@ public interface ResponseCode {
     
     int SUCCESS = 200;
     
+    int SYSTEM_ERROR = 500;
+    
     /**
      * 数据源； 模块code为01
      * <p>四位数, 前两位为固定51,第三四位为模块代码,第四五位为具体错误码

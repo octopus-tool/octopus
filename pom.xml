@@ -27,6 +27,8 @@
         <commons-codec.version>1.17.0</commons-codec.version>
         <guava.version>33.2.0-jre</guava.version>
         <auto-service.version>1.1.0</auto-service.version>
+        <mybatis-plus.version>3.5.6</mybatis-plus.version>
+        <okhttp.version>4.12.0</okhttp.version>
     </properties>
     <modules>
         <module>core</module>
@@ -89,6 +91,18 @@
                 <groupId>com.google.auto.service</groupId>
                 <artifactId>auto-service</artifactId>
                 <version>${auto-service.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp-bom</artifactId>
+                <version>${okhttp.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

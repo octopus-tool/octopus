@@ -1,5 +1,6 @@
 package org.gaius.octopus.common.utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -24,6 +25,16 @@ public class JacksonUtil {
     public static <T> T readValue(String json, Class<T> clazz) {
         try {
             return objectMapper.readValue(json, clazz);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static <T> T readValue(String json) {
+        try {
+            return objectMapper.readValue(json, new TypeReference<>() {
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }

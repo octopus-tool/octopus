@@ -62,8 +62,20 @@ public class Result<T> {
     /**
      * 响应失败
      */
-    public static <T> Result<T> fail(int code, String message) {
+    public static <T> Result<T> failure(int code, String message) {
         return new Result<>(code, message, null);
+    }
+    
+    /**
+     * Failed return with message and detail error information.
+     *
+     * @param message Failure Information
+     * @param <T>
+     * @return
+     */
+    
+    public static <T> Result<T> failure(String message) {
+        return new Result<>(ResponseCode.SYSTEM_ERROR, message, null, null);
     }
     
     

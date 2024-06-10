@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.gaius.datasource.Available;
 import org.gaius.datasource.DatasourceInstance;
 import org.gaius.datasource.InvokeContext;
@@ -29,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * mysql数据源
@@ -56,7 +58,7 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
     
     public MySQLDatasourceInstance(DatasourceProperties properties) {
         this.properties = properties;
-        this.dataSource = initDatasource(properties);
+        this.dataSource = init(properties);
     }
     
     /**
@@ -65,7 +67,7 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
      * @param config 配置
      * @return
      */
-    private DataSource initDatasource(DatasourceProperties config) {
+    private DataSource init(DatasourceProperties config) {
         Map<String, Object> content = config.getContent();
         Boolean pool = MapUtils.getBoolean(content, "pool", false);
         // 若当前数据源实例开启连接池，则使用HikariCP连接池
@@ -175,6 +177,8 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
     
     @Override
     public Object invoke(InvokeContext context) throws DatabaseException {
+        StopWatch started = StopWatch.createStarted();
+        log.info("开始执行mysql语句");
         Map<String, Object> interfaceInfo = context.getInterfaceInfo();
         Map<String, Object> args = context.getArgs();
         try (Connection connection = getConnection(context.getServiceContext())) {
@@ -182,13 +186,19 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
             int timeout = MapUtils.getIntValue(interfaceInfo, "timeout", 60);
             // 执行SQL
             String sql = MapUtils.getString(interfaceInfo, "sql");
+            log.info("原始sql语句:{}", sql);
             // sql格式化
             sql = TemplateUtil.render(sql, args);
+            log.info("格式化后的sql语句:{}", sql);
             // 准备执行SQL
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setQueryTimeout(timeout);
             // 执行SQL,若非查询语句,获取更新记录数
-            if (statement.execute()) {
+            log.info("开始执行sql语句, timeout:{}", timeout);
+            StopWatch startedExecute = StopWatch.createStarted();
+            boolean isSelected = statement.execute();
+            log.info("sql语句执行完成，耗时:{}ms", startedExecute.getTime());
+            if (isSelected) {
                 ResultSet resultSet = statement.getResultSet();
                 // 获取结果集
                 List<Map<String, Object>> result = new ArrayList<>();
@@ -209,11 +219,14 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
             }
             return statement.getUpdateCount();
         } catch (SQLException e) {
-            log.error("获取数据库连接失败", e);
+            log.error("sql任务异常", e);
             throw new DatabaseException(e);
         } catch (ClassNotFoundException e) {
             log.error("mysql驱动加载失败", e);
             throw new DatabaseException(e);
+        } finally {
+            started.stop();
+            log.info("sql任务执行结束,总耗时:{}ms", started.getTime(TimeUnit.MILLISECONDS));
         }
     }
     
