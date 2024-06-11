@@ -12,7 +12,7 @@ import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.gaius.datasource.Available;
-import org.gaius.datasource.exception.DatabaseException;
+import org.gaius.datasource.exception.DatasourceException;
 import org.gaius.octopus.core.execute.AbstractExecuteEngine;
 import org.gaius.octopus.core.execute.ExecuteContext;
 import org.springframework.stereotype.Service;
@@ -40,7 +40,7 @@ public class GroovyExecuteEngine extends AbstractExecuteEngine<String> {
     }
     
     @Override
-    public Available validate(ExecuteContext<String> content) throws DatabaseException {
+    public Available validate(ExecuteContext<String> content) throws DatasourceException {
         
         return null;
     }

@@ -5,23 +5,23 @@ import java.io.Serial;
 /**
  * @author zhaobo
  * @program octopus
- * @description 数据库异常
+ * @description 数据源异常
  * @date 2024/6/6
  */
-public class DatabaseException extends Exception {
+public class DatasourceException extends Exception {
     
     @Serial
     private static final long serialVersionUID = -3553483826168773633L;
     
-    public DatabaseException(Throwable cause) {
+    public DatasourceException(Throwable cause) {
         super(cause);
     }
     
-    public DatabaseException(String message) {
+    public DatasourceException(String message) {
         super(message);
     }
     
-    public DatabaseException(String message, Throwable origin) {
+    public DatasourceException(String message, Throwable origin) {
         super(message, origin);
     }
 }

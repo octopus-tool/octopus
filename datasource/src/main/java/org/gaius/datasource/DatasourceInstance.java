@@ -1,6 +1,8 @@
 package org.gaius.datasource;
 
-import org.gaius.datasource.exception.DatabaseException;
+import org.gaius.datasource.exception.DatasourceException;
+
+import java.io.IOException;
 
 /**
  * 数据源实例
@@ -23,9 +25,9 @@ public interface DatasourceInstance<R> {
      *
      * @param context 执行上下文
      * @return 调用结果
-     * @throws DatabaseException 数据库异常
+     * @throws DatasourceException 数据库异常
      */
-    R invoke(InvokeContext context) throws DatabaseException;
+    R invoke(InvokeContext context) throws DatasourceException, IOException;
     
     /**
      * 销毁当前数据源实例

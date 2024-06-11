@@ -110,7 +110,7 @@ public class DefaultCacheService implements CacheService<String> {
     }
     
     @Override
-    public Map<Object, Object> hmget(String key, boolean... flag) {
+    public Map<String, Object> hmget(String key, boolean... flag) {
         return null;
     }
     

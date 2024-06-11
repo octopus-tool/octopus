@@ -168,7 +168,7 @@ public interface CacheService<T> {
      * @param key 键
      * @return 对应的多个键值
      */
-    Map<Object, Object> hmget(String key, boolean... flag);
+    Map<T, Object> hmget(String key, boolean... flag);
 
     Set<Object> hkeys(String key, boolean... flag);
 

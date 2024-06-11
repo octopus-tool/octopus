@@ -44,7 +44,7 @@ public class DatasourceServiceImpl extends ServiceImpl<DatasourceMapper, Datasou
         dto.setId(datasource.getId());
         dto.setName(datasource.getName());
         dto.setDatasourceType(datasource.getPluginName());
-        dto.setContent(JacksonUtil.readValue(datasource.getContent()));
+        dto.setContent(JacksonUtil.parseToTargetObject(datasource.getContent()));
         return dto;
     }
 }

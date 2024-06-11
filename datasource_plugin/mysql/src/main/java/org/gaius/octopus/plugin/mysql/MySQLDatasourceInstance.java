@@ -10,7 +10,7 @@ import org.gaius.datasource.Available;
 import org.gaius.datasource.DatasourceInstance;
 import org.gaius.datasource.InvokeContext;
 import org.gaius.datasource.ServiceContext;
-import org.gaius.datasource.exception.DatabaseException;
+import org.gaius.datasource.exception.DatasourceException;
 import org.gaius.datasource.model.DatasourceProperties;
 import org.gaius.datasource.utils.TemplateUtil;
 
@@ -176,7 +176,7 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
     }
     
     @Override
-    public Object invoke(InvokeContext context) throws DatabaseException {
+    public Object invoke(InvokeContext context) throws DatasourceException {
         StopWatch started = StopWatch.createStarted();
         log.info("开始执行mysql语句");
         Map<String, Object> interfaceInfo = context.getInterfaceInfo();
@@ -220,10 +220,10 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
             return statement.getUpdateCount();
         } catch (SQLException e) {
             log.error("sql任务异常", e);
-            throw new DatabaseException(e);
+            throw new DatasourceException(e);
         } catch (ClassNotFoundException e) {
             log.error("mysql驱动加载失败", e);
-            throw new DatabaseException(e);
+            throw new DatasourceException(e);
         } finally {
             started.stop();
             log.info("sql任务执行结束,总耗时:{}ms", started.getTime(TimeUnit.MILLISECONDS));

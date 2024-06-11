@@ -2,7 +2,7 @@ package org.gaius.octopus.core.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.gaius.datasource.exception.DatabaseException;
+import org.gaius.datasource.exception.DatasourceException;
 import org.gaius.octopus.core.execute.AbstractExecuteEngine;
 import org.gaius.octopus.core.execute.ExecuteContext;
 import org.gaius.octopus.core.execute.datasource.DatasourceExecuteDTO;
@@ -33,7 +33,7 @@ public class DatasourceInterfaceServiceImpl implements DatasourceInterfaceServic
         // 基于数据源ID获取数据源实例
         DatasourceDTO datasourceDTO = datasourceService.selectById(dto.getDatasourceId());
         if (datasourceDTO == null) {
-            throw new DatabaseException("not found");
+            throw new DatasourceException("not found");
         }
         DatasourceExecuteDTO executeDTO = DatasourceExecuteDTO.builder().datasource(datasourceDTO)
                 .interfaceInfo(dto.getContent()).build();
