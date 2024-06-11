@@ -32,7 +32,7 @@ class DatasourceControllerTest {
         requestBody.setContent(datasourceInfo);
         requestBody.setDatasourceType("mysqlPlugin");
         // 将Java对象转换为JSON字符串
-        String requestBodyJson = JacksonUtil.toJsonString(requestBody);
+        String requestBodyJson = JacksonUtil.writeObjectToString(requestBody);
         mockMvc.perform(
                         post("/api/v1/datasource/test").contentType(MediaType.APPLICATION_JSON).content(requestBodyJson))
                 .andExpect(status().isOk()).andExpect(content().json("{\"available\":true,\"message\":\"success\"}"));

@@ -4,12 +4,18 @@ import org.gaius.datasource.Available;
 import org.gaius.datasource.ServiceContext;
 import org.gaius.datasource.model.DatasourceProperties;
 import org.gaius.octopus.common.middle.CryptoService;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.Network;
+import org.testcontainers.utility.DockerImageName;
 
 import java.util.Map;
 
@@ -17,7 +23,27 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@Tag("use-container")
 class MySQLDatasourceServiceTest {
+    
+    private static MySQLContainer mysql;
+    
+    @BeforeAll
+    static void initContainer() {
+        mysql = new MySQLContainer<>(DockerImageName.parse("mysql:5.7.34"));
+        mysql.withNetwork(Network.newNetwork());
+        mysql.withExposedPorts(3306);
+        mysql.withPassword("123456");
+        mysql.withUsername("root");
+        mysql.withDatabaseName("test");
+        mysql.withCommand("--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci");
+        mysql.start();
+    }
+    
+    @AfterAll
+    static void tearDown() {
+        mysql.stop();
+    }
     
     @BeforeEach
     void setUp() {
@@ -27,9 +53,8 @@ class MySQLDatasourceServiceTest {
     @Test
     void available_success_when_datasource_info_is_valid_then_return_available() {
         // 建构测试数据
-        Map<String, Object> datasourceInfo = Map.of("host", "10.2.2.153", "port", 18103, "user", "xxx",
-                "password", "xxx@777", "database", "cw_doau", "driverClass", "com.mysql.cj.jdbc.Driver",
-                "urlFormat",
+        Map<String, Object> datasourceInfo = Map.of("host", "127.0.0.1", "port", 3306, "user", "root", "password",
+                "123456", "database", "test", "driverClass", "com.mysql.cj.jdbc.Driver", "urlFormat",
                 "jdbc:mysql://${host}:${port}/${database}?serverTimezone=UTC&characterEncoding=utf-8&allowPublicKeyRetrieval=true");
         DatasourceProperties datasourceProperties = new DatasourceProperties();
         datasourceProperties.setContent(datasourceInfo);
@@ -49,9 +74,8 @@ class MySQLDatasourceServiceTest {
     @Test
     void available_when_network_unavailable_then_return_unavailable() {
         // 构建测试数据
-        Map<String, Object> datasourceInfo = Map.of("host", "10.2.2.153", "port", 18103, "user", "xxx",
-                "password", "xxx@777", "database", "cw_doau", "driverClass", "com.mysql.cj.jdbc.Driver",
-                "urlFormat",
+        Map<String, Object> datasourceInfo = Map.of("host", "10.2.2.153", "port", 18103, "user", "xxx", "password",
+                "xxx@777", "database", "cw_doau", "driverClass", "com.mysql.cj.jdbc.Driver", "urlFormat",
                 "jdbc:mysql://${host}:${port}/${database}?serverTimezone=UTC&characterEncoding=utf-8&allowPublicKeyRetrieval=true");
         DatasourceProperties datasourceProperties = new DatasourceProperties();
         datasourceProperties.setContent(datasourceInfo);

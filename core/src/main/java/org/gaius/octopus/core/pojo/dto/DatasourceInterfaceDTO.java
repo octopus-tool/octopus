@@ -16,12 +16,12 @@ public class DatasourceInterfaceDTO {
     /**
      * 接口ID
      */
-    private Integer id;
+    private Long id;
     
     /**
      * 数据源ID
      */
-    private Integer datasourceId;
+    private Long datasourceId;
     
     /**
      * 接口名称

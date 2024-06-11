@@ -21,5 +21,5 @@ public interface DatasourceService extends IService<Datasource> {
      */
     Available test(DatasourceDTO dto) throws Exception;
     
-    DatasourceDTO selectById(Integer datasourceId);
+    DatasourceDTO selectById(Long datasourceId);
 }

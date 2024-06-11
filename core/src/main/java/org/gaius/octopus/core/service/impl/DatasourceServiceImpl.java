@@ -35,7 +35,7 @@ public class DatasourceServiceImpl extends ServiceImpl<DatasourceMapper, Datasou
     }
     
     @Override
-    public DatasourceDTO selectById(Integer datasourceId) {
+    public DatasourceDTO selectById(Long datasourceId) {
         Datasource datasource = this.getById(datasourceId);
         if (datasource == null) {
             return null;
