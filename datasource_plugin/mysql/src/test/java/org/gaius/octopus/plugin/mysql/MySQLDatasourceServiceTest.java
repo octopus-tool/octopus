@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.containers.Network;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.Map;
@@ -31,12 +30,9 @@ class MySQLDatasourceServiceTest {
     @BeforeAll
     static void initContainer() {
         mysql = new MySQLContainer<>(DockerImageName.parse("mysql:5.7.34"));
-        mysql.withNetwork(Network.newNetwork());
-        mysql.withExposedPorts(3306);
         mysql.withPassword("123456");
         mysql.withUsername("root");
         mysql.withDatabaseName("test");
-        mysql.withCommand("--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci");
         mysql.start();
     }
     
@@ -52,9 +48,10 @@ class MySQLDatasourceServiceTest {
     
     @Test
     void available_success_when_datasource_info_is_valid_then_return_available() {
+        Integer mysqlMappedPort = mysql.getMappedPort(MySQLContainer.MYSQL_PORT);
         // 建构测试数据
-        Map<String, Object> datasourceInfo = Map.of("host", "127.0.0.1", "port", 3306, "user", "root", "password",
-                "123456", "database", "test", "driverClass", "com.mysql.cj.jdbc.Driver", "urlFormat",
+        Map<String, Object> datasourceInfo = Map.of("host", mysql.getHost(), "port", mysqlMappedPort, "user", "root",
+                "password", "123456", "database", "test", "driverClass", "com.mysql.cj.jdbc.Driver", "urlFormat",
                 "jdbc:mysql://${host}:${port}/${database}?serverTimezone=UTC&characterEncoding=utf-8&allowPublicKeyRetrieval=true");
         DatasourceProperties datasourceProperties = new DatasourceProperties();
         datasourceProperties.setContent(datasourceInfo);
@@ -70,17 +67,18 @@ class MySQLDatasourceServiceTest {
         Assertions.assertTrue(available.getAvailable(), "数据库连接失败");
     }
     
-    // 当网络不可达时，测试结果为false
+    // 密码不正确，测试结果为false
     @Test
     void available_when_network_unavailable_then_return_unavailable() {
+        Integer mysqlMappedPort = mysql.getMappedPort(MySQLContainer.MYSQL_PORT);
         // 构建测试数据
-        Map<String, Object> datasourceInfo = Map.of("host", "10.2.2.153", "port", 18103, "user", "xxx", "password",
-                "xxx@777", "database", "cw_doau", "driverClass", "com.mysql.cj.jdbc.Driver", "urlFormat",
+        Map<String, Object> datasourceInfo = Map.of("host", mysql.getHost(), "port", mysqlMappedPort, "user", "root",
+                "password", "123123", "database", "test", "driverClass", "com.mysql.cj.jdbc.Driver", "urlFormat",
                 "jdbc:mysql://${host}:${port}/${database}?serverTimezone=UTC&characterEncoding=utf-8&allowPublicKeyRetrieval=true");
         DatasourceProperties datasourceProperties = new DatasourceProperties();
         datasourceProperties.setContent(datasourceInfo);
         datasourceProperties.setTenantId("110");
-        datasourceProperties.setDatasourceId(1L);
+        datasourceProperties.setDatasourceId(2L);
         MySQLDatasourceFactory factory = new MySQLDatasourceFactory();
         MySQLDatasourceInstance instance = factory.create(datasourceProperties);
         ServiceContext mock = mock(ServiceContext.class);
@@ -99,9 +97,5 @@ class MySQLDatasourceServiceTest {
         public String decrypt(String content) {
             return content;
         }
-    }
-    
-    @Test
-    void invoke() {
     }
 }

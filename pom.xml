@@ -27,6 +27,7 @@
         <commons-codec.version>1.17.0</commons-codec.version>
         <guava.version>33.2.0-jre</guava.version>
         <auto-service.version>1.1.0</auto-service.version>
+        <mybatis.version>3.0.2</mybatis.version>
         <mybatis-plus.version>3.5.6</mybatis-plus.version>
         <okhttp.version>4.12.0</okhttp.version>
         <testcontainers.version>1.17.5</testcontainers.version>
@@ -92,6 +93,25 @@
                 <groupId>com.google.auto.service</groupId>
                 <artifactId>auto-service</artifactId>
                 <version>${auto-service.version}</version>
+            </dependency>
+            
+            <dependency>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>mybatis</artifactId>
+                        <groupId>org.mybatis</groupId>
+                    </exclusion>
+                </exclusions>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <version>${mybatis.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter-test</artifactId>
+                <version>${mybatis.version}</version>
+                <scope>test</scope>
             </dependency>
             
             <dependency>
