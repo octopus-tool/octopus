@@ -199,7 +199,7 @@ public class HTTPDatasourceInstance implements DatasourceInstance<Object> {
                 return null;
             }
             return JacksonUtil.jsonpathToClass(responseBody.string(), extract);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new DatasourceException(e);
         }
     }

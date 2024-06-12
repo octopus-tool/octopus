@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.junit.jupiter.MockServerExtension;
+import org.mockserver.model.Delay;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 
@@ -42,11 +43,16 @@ class HTTPDatasourceServiceTest {
         clientAndServer.when(basicRequest).respond(HttpResponse.response().withStatusCode(200)
                 .withBody("{\"code\":200, \"data\":123, \"message\":\"success\"}"));
         
-        // mockserver basic认证协议 admin:123456
+        // 自定义接口
         HttpRequest customRequest = HttpRequest.request().withHeader("token", "123").withMethod("GET")
                 .withPath("/custom-auth");
         clientAndServer.when(customRequest).respond(HttpResponse.response().withStatusCode(200)
                 .withBody("{\"code\":200, \"data\":456, \"message\":\"success\"}"));
+        
+        // 设置响应超时接口
+        HttpRequest timeoutRequest = HttpRequest.request().withMethod("GET").withPath("/timeout");
+        clientAndServer.when(timeoutRequest).respond(HttpResponse.response().withStatusCode(200)
+                .withBody("{\"code\":200, \"data\":456, \"message\":\"success\"}").withDelay(Delay.seconds(10L)));
     }
     
     @AfterAll
@@ -75,11 +81,11 @@ class HTTPDatasourceServiceTest {
     @Test
     void available_fail_when_datasource_info_is_invalid_then_return_unavailable() {
         // 建构测试数据
-        Map<String, Object> datasourceInfo = Map.of("endpoint", "https://www.google.com", "heartbeat", "/");
+        Map<String, Object> datasourceInfo = Map.of("endpoint", "https://www.xxx.com", "heartbeat", "/");
         DatasourceProperties datasourceProperties = new DatasourceProperties();
         datasourceProperties.setContent(datasourceInfo);
         datasourceProperties.setTenantId("110");
-        datasourceProperties.setDatasourceId(1L);
+        datasourceProperties.setDatasourceId(2L);
         // 获取工具类
         HTTPDatasourceFactory factory = new HTTPDatasourceFactory();
         // 创建实例
@@ -99,7 +105,7 @@ class HTTPDatasourceServiceTest {
         DatasourceProperties datasourceProperties = new DatasourceProperties();
         datasourceProperties.setContent(datasourceInfo);
         datasourceProperties.setTenantId("110");
-        datasourceProperties.setDatasourceId(1L);
+        datasourceProperties.setDatasourceId(3L);
         // 获取工具类
         HTTPDatasourceFactory factory = new HTTPDatasourceFactory();
         // 创建实例
@@ -127,7 +133,8 @@ class HTTPDatasourceServiceTest {
         
         List<Map<String, Object>> interfaceHeaders = Lists.newArrayList(
                 Map.of("key", "token", "value", "${credential.token}", "desc", "token"));
-        Map<String, Object> interfaceInfo = Map.of("path", "/custom-auth", "headers", interfaceHeaders, "method", "GET");
+        Map<String, Object> interfaceInfo = Map.of("path", "/custom-auth", "headers", interfaceHeaders, "method",
+                "GET");
         /**
          * {
          *     "endpoint": "https://org.gaius.com",
@@ -150,7 +157,7 @@ class HTTPDatasourceServiceTest {
         DatasourceProperties datasourceProperties = new DatasourceProperties();
         datasourceProperties.setContent(datasourceInfo);
         datasourceProperties.setTenantId("110");
-        datasourceProperties.setDatasourceId(1L);
+        datasourceProperties.setDatasourceId(4L);
         // 获取工具类
         HTTPDatasourceFactory factory = new HTTPDatasourceFactory();
         // 创建实例
@@ -168,6 +175,61 @@ class HTTPDatasourceServiceTest {
         Object result = instance.invoke(invokeContext);
         Assertions.assertInstanceOf(Map.class, result, "数据源连接失败");
         factory.destroy(datasourceProperties);
+    }
+    
+    // 测试响应超时时，接口调用失败
+    @Test
+    void invoke_fail_when_datasource_info_is_valid_and_timeout_then_return_available() {
+        // 建构数据源
+        Map<String, Object> datasourceInfo = Map.of("endpoint", "http://localhost:1080", "method", "GET", "heartbeat",
+                " /login", "credentialModel", "none", "timeout", 5L);
+        // 构建接口
+        Map<String, Object> interfaceInfo = Map.of("path", "/timeout", "method", "GET");
+        DatasourceProperties datasourceProperties = new DatasourceProperties();
+        datasourceProperties.setContent(datasourceInfo);
+        datasourceProperties.setTenantId("110");
+        datasourceProperties.setDatasourceId(5L);
+        HTTPDatasourceFactory factory = new HTTPDatasourceFactory();
+        HTTPDatasourceInstance instance = factory.create(datasourceProperties);
+        CacheService<String> cacheService = mock(CacheService.class);
+        when(cacheService.del(anyString())).thenReturn(true);
+        
+        ServiceContext mock = mock(ServiceContext.class);
+        when(mock.getCacheService()).thenReturn(cacheService);
+        
+        InvokeContext invokeContext = new InvokeContext();
+        invokeContext.setServiceContext(mock);
+        invokeContext.setInterfaceInfo(interfaceInfo);
+        invokeContext.setArgs(Maps.newHashMap());
+        Assertions.assertThrowsExactly(DatasourceException.class, () -> instance.invoke(invokeContext),
+                "数据源连接失败");
+    }
+    
+    // 测试数据源允许超时时间大于接口超时时间时，接口调用正常
+    @Test
+    void invoke_success_when_datasource_info_is_valid_and_timeout_then_return_available() throws DatasourceException {
+        // 建构数据源
+        Map<String, Object> datasourceInfo = Map.of("endpoint", "http://localhost:1080", "method", "GET", "heartbeat",
+                " /login", "credentialModel", "none", "timeout", 11L);
+        // 构建接口
+        Map<String, Object> interfaceInfo = Map.of("path", "/timeout", "method", "GET");
+        DatasourceProperties datasourceProperties = new DatasourceProperties();
+        datasourceProperties.setContent(datasourceInfo);
+        datasourceProperties.setTenantId("110");
+        datasourceProperties.setDatasourceId(6L);
+        HTTPDatasourceFactory factory = new HTTPDatasourceFactory();
+        HTTPDatasourceInstance instance = factory.create(datasourceProperties);
+        CacheService<String> cacheService = mock(CacheService.class);
+        when(cacheService.del(anyString())).thenReturn(true);
+        
+        ServiceContext mock = mock(ServiceContext.class);
+        when(mock.getCacheService()).thenReturn(cacheService);
+        
+        InvokeContext invokeContext = new InvokeContext();
+        invokeContext.setServiceContext(mock);
+        invokeContext.setInterfaceInfo(interfaceInfo);
+        invokeContext.setArgs(Maps.newHashMap());
+        Assertions.assertInstanceOf(Map.class, instance.invoke(invokeContext), "数据源连接失败");
     }
     
 }
