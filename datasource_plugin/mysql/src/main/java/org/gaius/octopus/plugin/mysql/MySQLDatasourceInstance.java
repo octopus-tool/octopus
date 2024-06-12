@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.gaius.datasource.Available;
 import org.gaius.datasource.DatasourceInstance;
@@ -160,7 +161,8 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
      * @throws ClassNotFoundException 驱动加载失败
      * @throws SQLException           数据库连接失败
      */
-    private Connection createConnection(ServiceContext serviceContext) throws ClassNotFoundException, SQLException {
+    private Connection createConnection(ServiceContext serviceContext)
+            throws ClassNotFoundException, SQLException, DatasourceException {
         Map<String, Object> datasourceInfo = properties.getContent();
         // 获取url格式
         String urlFormat = MapUtils.getString(datasourceInfo, "urlFormat");
@@ -171,6 +173,9 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
         String encrypt = serviceContext.getCryptoService().encrypt(password);
         String url = TemplateUtil.render(urlFormat, datasourceInfo);
         log.info("校验mysql连接参数是否正确, driverClass:{},url:{}, user:{}, password:******", driverClass, url, user);
+        if (StringUtils.isAnyEmpty(url, user, password)) {
+            throw new DatasourceException("mysql连接参数不能为空");
+        }
         Class.forName(driverClass);
         return DriverManager.getConnection(url, user, encrypt);
     }
@@ -265,7 +270,8 @@ public class MySQLDatasourceInstance implements DatasourceInstance<Object> {
      * @param serviceContext 服务上下文
      * @return connection 数据库连接
      */
-    private Connection getConnection(ServiceContext serviceContext) throws SQLException, ClassNotFoundException {
+    private Connection getConnection(ServiceContext serviceContext)
+            throws SQLException, ClassNotFoundException, DatasourceException {
         if (dataSource != null) {
             return dataSource.getConnection();
         }

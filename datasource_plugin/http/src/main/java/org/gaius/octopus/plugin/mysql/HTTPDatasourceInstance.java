@@ -153,8 +153,12 @@ public class HTTPDatasourceInstance implements DatasourceInstance<Object> {
             if (!response.isSuccessful()) {
                 return Available.builder().available(false).message(response.message()).build();
             }
-            return Available.builder().available(true).message(String.format(SUCCESS_TEMPLATE, endpoint, heartbeat))
-                    .build();
+            ResponseBody responseBody = response.body();
+            if (responseBody == null) {
+                return Available.builder().available(true).message(String.format(SUCCESS_TEMPLATE, endpoint, heartbeat))
+                        .build();
+            }
+            return Available.builder().available(true).message(responseBody.string()).build();
         } catch (IOException e) {
             log.error("请求失败", e);
             return Available.builder().available(false).message(e.getMessage()).build();
@@ -348,7 +352,7 @@ public class HTTPDatasourceInstance implements DatasourceInstance<Object> {
                 throw new DatasourceException("认证请求参数错误");
             }
             try (Response response = client.newCall(authRequest).execute()) {
-                return processAuthResponse(invokeContext, response, content, expiration, redisKey);
+                return processAuthResponse(invokeContext, response, credentialsObject, expiration, redisKey);
             } catch (IOException e) {
                 throw new DatasourceException(e);
             } catch (Exception e) {
@@ -385,13 +389,14 @@ public class HTTPDatasourceInstance implements DatasourceInstance<Object> {
          * @return
          */
         private Map<String, Object> processAuthResponse(InvokeContext invokeContext, Response response,
-                Map<String, Object> content, long expiration, String redisKey) throws DatasourceException {
+                Map<String, Object> content, long expiration, String redisKey) throws DatasourceException, IOException {
             if (response.isSuccessful()) {
                 Map<String, Object> responseObject = new HashMap<>();
                 responseObject.put(HTTPConstant.HEADER, response.headers().toMultimap());
                 responseObject.put(HTTPConstant.CODE, response.code());
-                if (response.body() != null) {
-                    String responseBodyStr = response.body().toString();
+                ResponseBody responseBody = response.body();
+                if (responseBody != null) {
+                    String responseBodyStr = responseBody.string();
                     if (StringUtils.isNotEmpty(responseBodyStr)) {
                         Object responseValue = JacksonUtil.parseToTargetObject(responseBodyStr);
                         responseObject.put(HTTPConstant.BODY, responseValue);
@@ -415,18 +420,18 @@ public class HTTPDatasourceInstance implements DatasourceInstance<Object> {
                 // 过期时间为-1时，表示永不过期
                 if (expiration == -1) {
                     invokeContext.getServiceContext().getCacheService().hmset(redisKey, authCacheMap);
-                    return responseObject;
+                    return authCacheMap;
                 }
                 // 过期时间为0时，表示不缓存
                 if (expiration == 0) {
                     // 删除缓存
                     invokeContext.getServiceContext().getCacheService().del(redisKey);
-                    return responseObject;
+                    return authCacheMap;
                 }
                 // 过期时间大于0，设置过期时间
                 invokeContext.getServiceContext().getCacheService()
                         .hmset(redisKey, authCacheMap, expiration, TimeUnit.SECONDS);
-                return responseObject;
+                return authCacheMap;
             }
             String errorMsg = String.format("认证请求失败, code: %s, message: %s, body:%s", response.code(),
                     response.message(), response.body());
