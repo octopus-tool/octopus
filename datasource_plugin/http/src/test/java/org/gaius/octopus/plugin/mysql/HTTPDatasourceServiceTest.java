@@ -117,17 +117,17 @@ class HTTPDatasourceServiceTest {
                 Map.of("key", "Authorization", "value", "Basic YWRtaW46MTIzNDU2", "desc", "token"));
         List<Map<String, Object>> extractList = List.of(
                 Map.of("key", "token", "value", "$.body.data", "desc", "token"));
-        Map<String, Object> credentialObject = Map.of("path", "/login", "method", "GET", "header", headers, "extract",
+        Map<String, Object> credentialObject = Map.of("path", "/login", "method", "GET", "headers", headers, "extract",
                 extractList);
         // 建构测试数据
         
         Map<String, Object> datasourceInfo = Map.of("endpoint", "http://localhost:1080", "path", "custom-auth",
-                "method", "GET", "header", headers, "heartbeat", " /login", "credentialModel", "custom", "credentials",
+                "method", "GET", "headers", headers, "heartbeat", " /login", "credentialModel", "custom", "credentials",
                 credentialObject);
         
         List<Map<String, Object>> interfaceHeaders = Lists.newArrayList(
                 Map.of("key", "token", "value", "${credential.token}", "desc", "token"));
-        Map<String, Object> interfaceInfo = Map.of("path", "/custom-auth", "header", interfaceHeaders, "method", "GET");
+        Map<String, Object> interfaceInfo = Map.of("path", "/custom-auth", "headers", interfaceHeaders, "method", "GET");
         /**
          * {
          *     "endpoint": "https://org.gaius.com",

@@ -19,6 +19,7 @@ import org.gaius.datasource.model.DatasourceProperties;
 import org.gaius.octopus.common.middle.CacheService;
 import org.gaius.octopus.common.utils.JacksonUtil;
 import org.gaius.octopus.plugin.mysql.constant.HTTPConstant;
+import org.gaius.octopus.plugin.mysql.request.HttpRequestBuilderFactory;
 import org.gaius.octopus.plugin.mysql.utils.HTTPUtil;
 
 import java.io.IOException;
@@ -182,7 +183,7 @@ public class HTTPDatasourceInstance implements DatasourceInstance<Object> {
         List<Map<String, Object>> datasourceHeaders = HTTPUtil.getHeaders(properties.getContent());
         // 与数据源请求头进行合并
         mergeHeaders(interfaceHeaders, datasourceHeaders);
-        Request request = HTTPUtil.requestBuild(endpoint, interfaceInfo, context.getArgs());
+        Request request = HttpRequestBuilderFactory.requestBuild(endpoint, interfaceInfo, context.getArgs());
         if (request == null) {
             throw new DatasourceException("请求失败");
         }
@@ -347,7 +348,8 @@ public class HTTPDatasourceInstance implements DatasourceInstance<Object> {
             }
             Map<String, Object> credentialsObject = HTTPUtil.getCredentialsObject(content);
             String endpoint = HTTPUtil.getEndpoint(content);
-            Request authRequest = HTTPUtil.requestBuild(endpoint, credentialsObject, invokeContext.getArgs());
+            Request authRequest = HttpRequestBuilderFactory.requestBuild(endpoint, credentialsObject,
+                    invokeContext.getArgs());
             if (authRequest == null) {
                 throw new DatasourceException("认证请求参数错误");
             }

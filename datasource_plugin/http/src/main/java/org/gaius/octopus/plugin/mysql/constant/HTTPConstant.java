@@ -65,7 +65,7 @@ public class HTTPConstant {
     /**
      * 请求头
      */
-    public static final String HEADER = "header";
+    public static final String HEADER = "headers";
     
     public static final String KEY = "key";
     
