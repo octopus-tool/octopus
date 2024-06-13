@@ -21,5 +21,11 @@ public interface DatasourceService extends IService<Datasource> {
      */
     Available test(DatasourceDTO dto) throws Exception;
     
+    /**
+     * 根据id查询数据源
+     *
+     * @param datasourceId 数据源id
+     * @return 数据源对象
+     */
     DatasourceDTO selectById(Long datasourceId);
 }

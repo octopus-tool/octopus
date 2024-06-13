@@ -36,5 +36,5 @@ public class DatasourceInterfaceDTO {
     /**
      * 接口参数
      */
-    private Map<String, Object> arg;
+    private Map<String, Object> args;
 }

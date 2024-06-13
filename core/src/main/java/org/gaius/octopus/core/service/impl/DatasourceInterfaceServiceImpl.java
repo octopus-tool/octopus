@@ -38,7 +38,7 @@ public class DatasourceInterfaceServiceImpl implements DatasourceInterfaceServic
         DatasourceExecuteDTO executeDTO = DatasourceExecuteDTO.builder().datasource(datasourceDTO)
                 .interfaceInfo(dto.getContent()).build();
         ExecuteContext<DatasourceExecuteDTO> context = ExecuteContext.<DatasourceExecuteDTO>builder()
-                .content(executeDTO).args(dto.getArg()).build();
+                .content(executeDTO).args(dto.getArgs()).build();
         return datasourceExecuteEngine.invoke(context);
     }
 }
