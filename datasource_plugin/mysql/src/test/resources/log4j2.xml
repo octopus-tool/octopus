@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" name="Production" monitorInterval="30">
+    <Properties>
+        <Property name="logLevel">${sys:logLevel:info}</Property>
+    </Properties>
+    <Appenders>
+        <!-- 控制台输出 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+        
+        <!-- 日志文件输出，每天生成一个新的日志文件 -->
+        <RollingFile name="RollingFile"
+            fileName="${sys:logDir}/app.log"
+            filePattern="${sys:logDir}/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+        
+        <!-- 异步日志记录 -->
+        <Async name="AsyncRollingFile">
+            <AppenderRef ref="RollingFile"/>
+        </Async>
+    </Appenders>
+    
+    <Loggers>
+        <!-- 设置全局日志级别为INFO -->
+        <Root level="${logLevel}">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncRollingFile"/>
+        </Root>
+    </Loggers>
+</Configuration>

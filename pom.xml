@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.2</version>
+        <relativePath/>
+    </parent>
+    <groupId>org.gaius.octopus</groupId>
+    <artifactId>octopus</artifactId>
+    <version>${revision}</version>
+    <name>octopus</name>
+    <packaging>pom</packaging>
+    <properties>
+        <java.version>17</java.version>
+        <revision>1.0.0</revision>
+        <commons-codec.version>1.17.0</commons-codec.version>
+        <commons-dbcp2.version>2.12.0</commons-dbcp2.version>
+        <commons-lang3.version>3.14.0</commons-lang3.version>
+        <commons-pool.version>1.6</commons-pool.version>
+        <commons-pool2.version>2.12.0</commons-pool2.version>
+        <commons-collections4.version>4.4</commons-collections4.version>
+        <commons-text.version>1.12.0</commons-text.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <commons-codec.version>1.17.0</commons-codec.version>
+        <guava.version>33.2.0-jre</guava.version>
+        <auto-service.version>1.1.0</auto-service.version>
+        <mybatis.version>3.0.2</mybatis.version>
+        <mybatis-plus.version>3.5.6</mybatis-plus.version>
+        <okhttp.version>4.12.0</okhttp.version>
+        <testcontainers.version>1.17.5</testcontainers.version>
+        <mockserver.version>5.14.0</mockserver.version>
+    </properties>
+    <modules>
+        <module>core</module>
+        <module>common</module>
+        <module>datasource</module>
+        <module>datasource_plugin</module>
+    </modules>
+    <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-pool</groupId>
+                <artifactId>commons-pool</artifactId>
+                <version>${commons-pool.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-pool2</artifactId>
+                <version>${commons-pool2.version}</version>
+            </dependency>
+
+            <dependency>
+                <artifactId>commons-text</artifactId>
+                <groupId>org.apache.commons</groupId>
+                <version>${commons-text.version}</version>
+            </dependency>
+
+            <dependency>
+                <artifactId>commons-collections4</artifactId>
+                <groupId>org.apache.commons</groupId>
+                <version>${commons-collections4.version}</version>
+            </dependency>
+
+            <dependency>
+                <artifactId>mapstruct</artifactId>
+                <groupId>org.mapstruct</groupId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+
+            <dependency>
+                <artifactId>mapstruct-processor</artifactId>
+                <groupId>org.mapstruct</groupId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.auto.service</groupId>
+                <artifactId>auto-service</artifactId>
+                <version>${auto-service.version}</version>
+            </dependency>
+            
+            <dependency>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>mybatis</artifactId>
+                        <groupId>org.mybatis</groupId>
+                    </exclusion>
+                </exclusions>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <version>${mybatis.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter-test</artifactId>
+                <version>${mybatis.version}</version>
+                <scope>test</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp-bom</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.mock-server</groupId>
+                <artifactId>mockserver-junit-jupiter-no-dependencies</artifactId>
+                <version>${mockserver.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
